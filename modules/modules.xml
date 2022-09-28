@@ -1,0 +1,11 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="noop.lua"/>
+	<Script file="mainbars.lua"/>
+	<Script file="buttons.lua"/>
+	<Script file="stance.lua"/>
+	<Script file="vehicle.lua"/>
+	<Script file="petbar.lua"/>
+	<Script file="multicast.lua"/>
+	<Script file="micromenu.lua"/>
+	<Script file="cooldowns.lua"/>
+</Ui>
