@@ -11,9 +11,6 @@
    <a href="https://github.com/s0h2x/pretty_actionbar/releases">
     <img src="https://img.shields.io/github/v/release/s0h2x/pretty_actionbar?include_prereleases&style=flat-square&logo=github&logoColor=white"
          alt="Release">
-    <!--<a href="https://github.com/s0h2x/pretty_actionbar/archive/refs/heads/master.zip">
-    <img src="https://img.shields.io/badge/download-latest-red?style=flat-square"
-         alt="download latest">-->
     <a href="https://wowwiki-archive.fandom.com/wiki/Patch_3.3.5">
     <img src="https://img.shields.io/badge/WoWPatch-3.3.5-blue?style=flat-square"
          alt="WoW version dependency">
