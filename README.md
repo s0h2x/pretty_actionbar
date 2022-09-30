@@ -8,7 +8,7 @@
     <a href="https://github.com/s0h2x/pretty_actionbar/releases/download/v1.0.2/pretty_actionbar.zip">
     <img src="https://img.shields.io/github/downloads/s0h2x/pretty_actionbar/total?label=Download%40latest&style=flat-square&logo=github&logoColor=white"
          alt="Latest">
-   <a href="https://github.com/s0h2x/pretty_actionbar/releases">
+   <a href="https://github.com/s0h2x/pretty_actionbar/releases/v1.0.2">
     <img src="https://img.shields.io/github/v/release/s0h2x/pretty_actionbar?include_prereleases&style=flat-square&logo=github&logoColor=white"
          alt="Release">
     <a href="https://wowwiki-archive.fandom.com/wiki/Patch_3.3.5">
