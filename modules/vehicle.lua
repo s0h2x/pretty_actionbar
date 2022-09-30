@@ -3,15 +3,8 @@ local config = addon.config;
 local class = addon._class;
 local unpack = unpack;
 local ipairs = ipairs;
-local UnitOnTaxi = UnitOnTaxi;
-local UnitPlayerControlled = UnitPlayerControlled;
-local UnitControllingVehicle = UnitControllingVehicle;
-local CanExitVehicle = CanExitVehicle;
 local RegisterStateDriver = RegisterStateDriver;
-local GetSpellInfo = GetSpellInfo;
-local CancelUnitBuff = CancelUnitBuff;
 local UnitVehicleSkin = UnitVehicleSkin;
-local UnitHasVehicleUI = UnitHasVehicleUI;
 local UIParent = UIParent;
 local _G = getfenv(0);
 
@@ -39,10 +32,9 @@ local vehicleExit = CreateFrame(
 	pUiMainBar,
 	'SecureHandlerClickTemplate,SecureHandlerStateTemplate'
 );
-
+vehicleBarBackground:SetScale(config.mainbars.scale_vehicle)
 vehiclebar:ClearAllPoints();
 vehiclebar:SetAllPoints(mixin2template);
--- hooksecurefunc('MainMenuBar_UpdateArt', function() return end)
 
 local function vehiclebar_power_setup()
 	VehicleMenuBarLeaveButton:SetParent(vehiclebar)
@@ -176,7 +168,6 @@ local function vehiclebutton_position()
 		button:SetParent(pUiVehicleBar)
 		button:SetSize(52, 52)
 		if index == 1 then
-			-- if not IsVehicleAimAngleAdjustable() then
 			button:SetPoint('BOTTOMLEFT', pUiVehicleBar, 'BOTTOMRIGHT', -594, 21)
 		else
 			local previous = _G['VehicleMenuBarActionButton'..index-1]
@@ -269,7 +260,7 @@ local function OnEvent(self,event,...)
 end
 
 local stance = {
-	['DRUID'] = '[bonusbar:1,nostealth] 7; [bonusbar:1,stealth] 8; [bonusbar:2] 8; [bonusbar:3] 9; [bonusbar:4] 10;',
+	['DRUID'] = '[bonusbar:1,nostealth] 7; [bonusbar:1,stealth] 7; [bonusbar:2] 8; [bonusbar:3] 9; [bonusbar:4] 10;',
 	['WARRIOR'] = '[bonusbar:1] 7; [bonusbar:2] 8; [bonusbar:3] 9;',
 	['PRIEST'] = '[bonusbar:1] 7;',
 	['ROGUE'] = '[bonusbar:1] 7; [form:3] 7;',
@@ -300,7 +291,6 @@ pUiMainBar:SetAttribute('_onstate-page', [[
 		button:SetAttribute('actionpage', tonumber(newstate))
 	end
 ]]);
-
 RegisterStateDriver(pUiMainBar, 'page', getbarpage());
 
 local function vehiclebar_initialize()
@@ -335,6 +325,5 @@ local function vehiclebar_initialize()
 		]]);
 		RegisterStateDriver(pUiMainBar, 'vehicle', '[bonusbar:5] 1; 0');
 	end
-	-- RegisterStateDriver(vehicleExit, 'visibility', '[vehicleui][target=vehicle,noexists] hide;show')
 end
 vehiclebar_initialize();

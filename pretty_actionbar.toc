@@ -2,7 +2,7 @@
 ## Title: |cff00ffff*|r |cfffff0f5pretty_actionbar|r
 ## Notes: |cffcaf7faActionbar addon from pretty stuff|r
 ## Notes-ruRU: |cffcaf7faПанель действий из прекрасного стаффа|r
-## Version: 1.0
+## Version: 1.0.2
 ## Author: s0high
 ## SavedVariables: collapse_state
 

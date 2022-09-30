@@ -7,6 +7,8 @@ do
 	PetActionBarFrame:EnableMouse(false)
 	ShapeshiftBarFrame:EnableMouse(false)
 	PossessBarFrame:EnableMouse(false)
+	BonusActionBarFrame:EnableMouse(false)
+	BonusActionBarFrame:SetScale(0.001)
 	
 	local elements_texture = {
 		MainMenuXPBarTexture0,

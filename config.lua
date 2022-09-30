@@ -1,6 +1,25 @@
 local addon = select(2,...);
 addon._dir = [[Interface\AddOns\pretty_actionbar\assets\]];
 addon.config = {
+	-- @desc: mainbar settings
+	-- @param: number of scale
+	mainbars = {
+		scale_actionbar = 0.9,			--; mainbar scale.
+		scale_rightbar = 0.9,			--; multibar right scale (under minimap).
+		scale_leftbar = 0.9,			--; multibar left scale (under minimap).
+		scale_vehicle = 1,				--; vehicle artbar scale.
+	},
+	
+	micromenu = {
+	-- @desc: micromenu & bags bar
+	-- @param: number, boolean
+		scale_menu = 1.4,				--; scale for micromenu.
+		scale_bags = 0.9,				--; scale for bags bar.
+		x_position = 0,					--; x offset (negative moves menu to left side).
+		y_position = -48,				--; y offset.
+		hide_on_vehicle = false,		--; hide micromenu and bags if you sit on vehicle.
+	},
+	
 	xprepbar = {
 	-- @desc: offset by y-axis for XP and reputation bar, this pushes mainbar to up
 	-- @param: offset number
@@ -26,8 +45,8 @@ addon.config = {
 		petbar_grid = false,										--; display empty slots on pet bar.
 		count = {
 			show = true,
-			position = {'BOTTOMRIGHT', 0, -2 },						--; x, y position.
-			font = {addon._dir..'expressway.ttf', 14, ''},			--; count font, size, flag.
+			position = {'BOTTOMRIGHT', 2, -1 },						--; x, y position.
+			font = {addon._dir..'expressway.ttf', 14, 'OUTLINE'},	--; count font, size, flag.
 		},
 		hotkey = {
 			show = true,
@@ -71,16 +90,9 @@ addon.config = {
 		},
 		vehicle = {
 			-- @param: artstyle: [true - like blizzard original bar arts], [false - like other bars]
-			artstyle = false,								--; vehicle bar style.
+			artstyle = true,								--; vehicle bar style.
 			position = {'BOTTOMLEFT', -52, 0},				--; vehicle leave button position.
 		},
-	},
-
-	micromenu = {
-	-- @desc: micromenu & bags bar
-	-- @param: number of position offset
-		x_position = 0,			--; x offset (negative moves menu to left side).
-		y_position = -48,		--; y offset.
 	},
 
 	assets = {

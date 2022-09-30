@@ -26,6 +26,7 @@ local pUiMainBarArt = CreateFrame(
 	'pUiMainBarArt',
 	pUiMainBar
 );
+pUiMainBar:SetScale(config.mainbars.scale_actionbar)
 pUiMainBarArt:SetFrameStrata('DIALOG');
 pUiMainBarArt:SetFrameLevel(pUiMainBar:GetFrameLevel() + 4);
 pUiMainBarArt:SetAllPoints(pUiMainBar);
@@ -119,8 +120,11 @@ function MainMenuBarMixin:actionbar_setup()
 	MultiBarBottomRight:EnableMouse(false) -- top middle
 	MultiBarBottomRight:SetClearPoint('BOTTOMLEFT', MultiBarBottomLeftButton1, 'TOPLEFT', 0, 8)
 	MultiBarRight:SetClearPoint('TOPRIGHT', UIParent, 'RIGHT', -6, (Minimap:GetHeight() * 1.3))
+	MultiBarRight:SetScale(config.mainbars.scale_rightbar)
+	MultiBarLeft:SetScale(config.mainbars.scale_leftbar)
+
 	-- MultiBarLeft:SetParent(UIParent)
-	-- MultiBarLeft:SetClearPoint('TOPRIGHT', MultiBarRightButton1, 'TOPLEFT', -6, 0)
+	MultiBarLeft:SetClearPoint('TOPRIGHT', MultiBarRight, 'TOPLEFT', -7, 0)
 end
 
 event:RegisterEvents(function()

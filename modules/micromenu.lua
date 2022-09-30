@@ -12,6 +12,7 @@ local PERFORMANCEBAR_MEDIUM_LATENCY = 600;
 
 local MainMenuMicroButtonMixin = {};
 local MainMenuBarBackpackButton = _G.MainMenuBarBackpackButton;
+local HelpMicroButton = _G.HelpMicroButton;
 local KeyRingButton = _G.KeyRingButton;
 
 local bagslots = {
@@ -33,8 +34,14 @@ local MICRO_BUTTONS = {
 	_G.MainMenuMicroButton,
 	_G.HelpMicroButton,
 };
-
-KeyRingButton:SetParent(_G.CharacterBag3Slot)
+local pUiBagsBar = CreateFrame(
+	'Frame',
+	'pUiBagsBar',
+	UIParent
+);
+pUiBagsBar:SetScale(config.micromenu.scale_bags);
+MainMenuBarBackpackButton:SetParent(pUiBagsBar);
+KeyRingButton:SetParent(_G.CharacterBag3Slot);
 function MainMenuMicroButtonMixin:bagbuttons_setup()
 	MainMenuBarBackpackButton:SetSize(50, 50)
 	MainMenuBarBackpackButton:SetNormalTexture(nil)
@@ -44,7 +51,7 @@ function MainMenuMicroButtonMixin:bagbuttons_setup()
 	MainMenuBarBackpackButton:GetHighlightTexture():set_atlas('bag-main-highlight-2x')
 	MainMenuBarBackpackButton:GetCheckedTexture():set_atlas('bag-main-highlight-2x')
 	MainMenuBarBackpackButtonIconTexture:set_atlas('bag-main-2x')
-	MainMenuBarBackpackButton:SetClearPoint('BOTTOMRIGHT', _G.HelpMicroButton, 'BOTTOMRIGHT', 6, 30)
+	MainMenuBarBackpackButton:SetClearPoint('BOTTOMRIGHT', HelpMicroButton, 'BOTTOMRIGHT', 0, 30)
 	MainMenuBarBackpackButton.SetPoint = addon._noop
 	
 	MainMenuBarBackpackButtonCount:SetClearPoint('CENTER', MainMenuBarBackpackButton, 'BOTTOM', 0, 14)
@@ -129,10 +136,13 @@ end,
 );
 
 do
+	for _,bags in pairs(bagslots) do
+		bags:SetParent(pUiBagsBar);
+	end
 	if config.style.bags == 'new' then
 		MainMenuMicroButtonMixin:bagbuttons_setup();
 	elseif config.style.bags == 'old' then
-		MainMenuBarBackpackButton:SetClearPoint('BOTTOMRIGHT', _G.HelpMicroButton, 'BOTTOMRIGHT', 0, 34)
+		MainMenuBarBackpackButton:SetClearPoint('BOTTOMRIGHT', HelpMicroButton, 'BOTTOMRIGHT', 0, 34)
 		MainMenuBarBackpackButtonIconTexture:SetTexture(addon._dir..'INV_Misc_Bag_08')
 		CharacterBag0Slot:SetClearPoint('RIGHT', MainMenuBarBackpackButton, 'LEFT', -20, 0)
 	else
@@ -259,7 +269,7 @@ end
 function MainMenuMicroButtonMixin:CreateBar()
 	local latencybar = CreateFrame('Statusbar', nil, UIParent)
 	latencybar:SetParent(HelpMicroButton)
-	latencybar:SetSize(19, 39)
+	latencybar:SetSize(14, 39)
 	latencybar:SetPoint('BOTTOM', HelpMicroButton, 'BOTTOM', 0, -4)
 	latencybar:SetStatusBarTexture(addon._dir..'ui-mainmenubar-performancebar')
 	latencybar:SetStatusBarColor(1, 1, 0)
@@ -272,9 +282,9 @@ MainMenuMicroButtonMixin:CreateBar();
 local function setupMicroButtons(xOffset)
 	local buttonxOffset = 0
 	local menu = CreateFrame('Frame', 'pUiMicroMenu', UIParent)
+	menu:SetScale(config.micromenu.scale_menu)
 	menu:SetSize(10, 10)
 	menu:SetPoint('BOTTOMLEFT', UIParent, 'BOTTOMRIGHT', xOffset, config.micromenu.y_position)
-	menu:SetScale(1.4)
 	for _,button in pairs(MICRO_BUTTONS) do
 		local buttonName = button:GetName():gsub('MicroButton', '')
 		local name = strlower(buttonName);
@@ -285,10 +295,10 @@ local function setupMicroButtons(xOffset)
 		PVPMicroButton:SetDisabledTexture'' -- doesn't exist by default
 		PVPMicroButton:GetDisabledTexture():set_atlas('ui-hud-micromenu-pvp-disabled-2x')
 
-		button:SetParent(pUiMainBar)
-		button:SetScale(1.4)
+		button:SetParent(pUiMicroMenu)
+		-- button:SetScale(1.4)
 		button:SetSize(14, 19)
-		button:SetClearPoint('BOTTOMLEFT', menu, 'BOTTOMRIGHT', buttonxOffset, 55)
+		button:SetClearPoint('BOTTOMLEFT', pUiMicroMenu, 'BOTTOMRIGHT', buttonxOffset, 55)
 		button.SetPoint = addon._noop
 		button:SetHitRectInsets(0,0,0,0)
 
@@ -311,5 +321,12 @@ addon.package:RegisterEvents(function()
 		xOffset = -166
 	end
 	setupMicroButtons(xOffset + config.micromenu.x_position);
+	if config.micromenu.hide_on_vehicle then
+		RegisterStateDriver(pUiMicroMenu, 'visibility', '[vehicleui] hide;show')
+		RegisterStateDriver(pUiBagsBar, 'visibility', '[vehicleui] hide;show')
+	else
+		UnregisterStateDriver(pUiMicroMenu, 'visibility')
+		UnregisterStateDriver(pUiBagsBar, 'visibility')
+	end
 end, 'PLAYER_LOGIN'
 );
