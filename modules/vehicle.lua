@@ -162,16 +162,19 @@ end
 
 local function vehiclebutton_position()
 	local button
-	for index=1, VEHICLE_MAX_ACTIONBUTTONS do
-		button = _G['VehicleMenuBarActionButton'..index]
-		button:ClearAllPoints()
-		button:SetParent(pUiVehicleBar)
-		button:SetSize(52, 52)
-		if index == 1 then
-			button:SetPoint('BOTTOMLEFT', pUiVehicleBar, 'BOTTOMRIGHT', -594, 21)
-		else
-			local previous = _G['VehicleMenuBarActionButton'..index-1]
-			button:SetPoint('LEFT', previous, 'RIGHT', 6, 0)
+	if pUiVehicleBar:IsShown() or mixin2template:IsShown() then
+		for index=1, VEHICLE_MAX_ACTIONBUTTONS do
+			button = _G['VehicleMenuBarActionButton'..index]
+			button:ClearAllPoints()
+			button:SetParent(pUiVehicleBar)
+			button:SetSize(52, 52)
+			button:Show()
+			if index == 1 then
+				button:SetPoint('BOTTOMLEFT', pUiVehicleBar, 'BOTTOMRIGHT', -594, 21)
+			else
+				local previous = _G['VehicleMenuBarActionButton'..index-1]
+				button:SetPoint('LEFT', previous, 'RIGHT', 6, 0)
+			end
 		end
 	end
 end

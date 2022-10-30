@@ -146,27 +146,6 @@ addon.functions.SetNumPagesButton = function(self, parent, direct, yOffset)
 	self:GetHighlightTexture():set_atlas('ui-hud-actionbar-'..direct..'-highlight', true)
 end
 
-addon.functions.get_offset = function(self, xOffset, yOffset)
-	local point, relto, relpoint, x, y = self:GetPoint()
-	xOffset = xOffset or x
-	yOffset = yOffset or y
-	self:SetClearPoint(point, relto, relpoint, xOffset, yOffset)
-end
-
-addon.api.set_offset_axis = function(self, frame1, frame2, x, y, x1, y1, x2, y2, x3, y3)
-	local offset = addon.functions.get_offset
-	if InCombatLockdown() and UnitAffectingCombat('player') then return end
-	if frame1:IsShown() and frame2:IsShown() then
-		offset(self, x, y)
-	elseif frame1:IsShown() then
-		offset(self, x1, y1)
-	elseif frame2:IsShown() then
-		offset(self, x2, y2)
-	else
-		offset(self, x3, y3)
-	end
-end
-
 addon.functions.inject_api = function(object)
 	local mt = getmetatable(object).__index
 	for API,FUNCTIONS in pairs(addon.api) do

@@ -7,6 +7,7 @@ local pairs = pairs;
 local ipairs = ipairs;
 local format = string.format;
 local UIParent = UIParent;
+local hooksecurefunc = hooksecurefunc;
 local UnitFactionGroup = UnitFactionGroup;
 local _G = getfenv(0);
 
@@ -26,8 +27,8 @@ local pUiMainBarArt = CreateFrame(
 	'pUiMainBarArt',
 	pUiMainBar
 );
-pUiMainBar:SetScale(config.mainbars.scale_actionbar)
-pUiMainBarArt:SetFrameStrata('DIALOG');
+pUiMainBar:SetScale(config.mainbars.scale_actionbar);
+pUiMainBarArt:SetFrameStrata('HIGH');
 pUiMainBarArt:SetFrameLevel(pUiMainBar:GetFrameLevel() + 4);
 pUiMainBarArt:SetAllPoints(pUiMainBar);
 
@@ -117,7 +118,7 @@ function MainMenuBarMixin:actionbar_setup()
 	end
 	MultiBarBottomLeft:SetParent(pUiMainBar)
 	MultiBarBottomRight:SetParent(pUiMainBar)
-	MultiBarBottomRight:EnableMouse(false) -- top middle
+	MultiBarBottomRight:EnableMouse(false)
 	MultiBarBottomRight:SetClearPoint('BOTTOMLEFT', MultiBarBottomLeftButton1, 'TOPLEFT', 0, 8)
 	MultiBarRight:SetClearPoint('TOPRIGHT', UIParent, 'RIGHT', -6, (Minimap:GetHeight() * 1.3))
 	MultiBarRight:SetScale(config.mainbars.scale_rightbar)
@@ -205,37 +206,65 @@ end,
 	'UPDATE_EXHAUSTION'
 );
 
-do
-	local both = config.xprepbar.bothbar_offset;
-	local single = config.xprepbar.singlebar_offset;
-	local nobar	= config.xprepbar.nobar_offset;
-	local abovexp = config.xprepbar.repbar_abovexp_offset;
-	local default = config.xprepbar.repbar_offset;
-	local offset_axis_update = {
-		ReputationWatchBar, MainMenuExpBar,_,both,_,single,_,single,_,nobar
-	};
+local both = config.xprepbar.bothbar_offset;
+local single = config.xprepbar.singlebar_offset;
+local nobar	= config.xprepbar.nobar_offset;
+local abovexp = config.xprepbar.repbar_abovexp_offset;
+local default = config.xprepbar.repbar_offset;
 
-	hooksecurefunc('ReputationWatchBar_Update',function()
-		local name = GetWatchedFactionInfo();
-		if name then
-			ReputationWatchBar:SetClearPoint('BOTTOM', UIParent, 0, MainMenuExpBar:IsShown() and abovexp or default);
-			ReputationWatchBarOverlayFrame:SetClearPoint('BOTTOM', UIParent, 0, MainMenuExpBar:IsShown() and abovexp or default);
-			ReputationWatchStatusBar:SetHeight(10)
-			ReputationWatchStatusBar:SetClearPoint('TOPLEFT', ReputationWatchBar, 0, 3)
-			ReputationWatchStatusBarText:SetClearPoint('CENTER', ReputationWatchStatusBar, 'CENTER', 0, old and 0 or 1);
-			ReputationWatchStatusBarBackground:SetAllPoints(ReputationWatchStatusBar)
+hooksecurefunc('ReputationWatchBar_Update',function()
+	local name = GetWatchedFactionInfo();
+	if name then
+		ReputationWatchBar:SetClearPoint('BOTTOM', UIParent, 0, MainMenuExpBar:IsShown() and abovexp or default);
+		ReputationWatchBarOverlayFrame:SetClearPoint('BOTTOM', UIParent, 0, MainMenuExpBar:IsShown() and abovexp or default);
+		ReputationWatchStatusBar:SetHeight(10)
+		ReputationWatchStatusBar:SetClearPoint('TOPLEFT', ReputationWatchBar, 0, 3)
+		ReputationWatchStatusBarText:SetClearPoint('CENTER', ReputationWatchStatusBar, 'CENTER', 0, old and 0 or 1);
+		ReputationWatchStatusBarBackground:SetAllPoints(ReputationWatchStatusBar)
+	end
+end)
+
+-- method update position
+function pUiMainBar:actionbar_update()
+	local xpbar = MainMenuExpBar:IsShown();
+	local repbar = ReputationWatchBar:IsShown();
+	if not InCombatLockdown() and not UnitAffectingCombat('player') then
+		if xpbar and repbar then
+			self:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, both);
+		elseif xpbar then
+			self:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, single);
+		elseif repbar then
+			self:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, single);
+		else
+			self:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, nobar);
 		end
-	end)
-
-	for _,bar in pairs({ReputationWatchBar,MainMenuExpBar}) do
-		bar:HookScript('OnShow',function()
-			pUiMainBar:set_offset_axis(unpack(offset_axis_update))
-		end)
-		bar:HookScript('OnHide',function()
-			pUiMainBar:set_offset_axis(unpack(offset_axis_update))
-		end)
 	end
 end
+
+event:RegisterEvents(function()
+	pUiMainBar:actionbar_update();
+end,
+	'PLAYER_LOGIN','ADDON_LOADED'
+);
+
+for _,bar in pairs({MainMenuExpBar,ReputationWatchBar}) do
+	if notRequired then return; end
+	if InCombatLockdown() and UnitAffectingCombat('player') then return; end
+	
+	local yOffset = select(5, pUiMainBar:GetPoint());
+	if (yOffset == nobar) then notRequired = true; end
+	
+	bar:HookScript('OnShow',function()
+		if (yOffset ~= nobar) then
+			pUiMainBar:actionbar_update();
+		end
+	end);
+	bar:HookScript('OnHide',function()
+		if (yOffset ~= nobar) then
+			pUiMainBar:actionbar_update();
+		end
+	end);
+end;
 
 function MainMenuBarMixin:initialize()
 	self:actionbutton_setup();

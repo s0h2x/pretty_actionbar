@@ -1,5 +1,6 @@
 local addon = select(2,...);
 local config = addon.config;
+local event = addon.package;
 local class = addon._class;
 local pUiMainBar = addon.pUiMainBar;
 local unpack = unpack;
@@ -15,6 +16,8 @@ local GetShapeshiftFormCooldown = GetShapeshiftFormCooldown;
 local CreateFrame = CreateFrame;
 local UIParent = UIParent;
 local hooksecurefunc = hooksecurefunc;
+local UnitAffectingCombat = UnitAffectingCombat;
+
 local stance = {
 	['DEATHKNIGHT'] = 'show',
 	['DRUID'] = 'show',
@@ -27,35 +30,56 @@ local stance = {
 
 -- @param: config number
 local offsetX = config.additional.stance.x_position;
-local offsetY = config.additional.y_position;
+local nobar = config.additional.y_position;
 local exOffs = config.additional.leftbar_offset;
 local exOffs2 = config.additional.rightbar_offset;
-local leftOffset, rightOffset = offsetY + exOffs, offsetY + exOffs2;
-local offset_axis_update = {
-	MultiBarBottomLeft,
-	MultiBarBottomRight,
-	offsetX,
-	leftOffset,
-	offsetX,
-	rightOffset,
-	offsetX,
-	leftOffset,
-	offsetX,
-	offsetY
-};
+local leftOffset, rightOffset = nobar + exOffs, nobar + exOffs2;
 
 local anchor = CreateFrame('Frame', 'pUiStanceHolder', pUiMainBar)
-anchor:SetPoint('TOPLEFT', pUiMainBar, 'TOPLEFT', offsetX, offsetY)
+anchor:SetPoint('TOPLEFT', pUiMainBar, 'TOPLEFT', offsetX, nobar)
 anchor:SetSize(37, 37)
 
-for _,bar in pairs({MultiBarBottomLeft,MultiBarBottomRight}) do
-	bar:HookScript('OnShow',function()
-		anchor:set_offset_axis(unpack(offset_axis_update))
-	end)
-	bar:HookScript('OnHide',function()
-		anchor:set_offset_axis(unpack(offset_axis_update))
-	end)
+-- method update position
+function anchor:stancebar_update()
+	local leftbar = MultiBarBottomLeft:IsShown();
+	local rightbar = MultiBarBottomRight:IsShown();
+	if not InCombatLockdown() and not UnitAffectingCombat('player') then
+		if leftbar and rightbar then
+			self:SetPoint('TOPLEFT', pUiMainBar, 'TOPLEFT', offsetX, leftOffset);
+		elseif leftbar then
+			self:SetPoint('TOPLEFT', pUiMainBar, 'TOPLEFT', offsetX, rightOffset);
+		elseif rightbar then
+			self:SetPoint('TOPLEFT', pUiMainBar, 'TOPLEFT', offsetX, leftOffset);
+		else
+			self:SetPoint('TOPLEFT', pUiMainBar, 'TOPLEFT', offsetX, nobar);
+		end
+	end
 end
+
+event:RegisterEvents(function()
+	anchor:stancebar_update();
+end,
+	'PLAYER_LOGIN','ADDON_LOADED'
+);
+
+for _,bar in pairs({MultiBarBottomLeft,MultiBarBottomRight}) do
+	if notRequired then return; end
+	if InCombatLockdown() and UnitAffectingCombat('player') then return; end
+	
+	local yOffset = select(5, anchor:GetPoint());
+	if (yOffset == nobar) then notRequired = true end
+	
+	bar:HookScript('OnShow',function()
+		if (yOffset ~= nobar) then
+			anchor:stancebar_update();
+		end
+	end);
+	bar:HookScript('OnHide',function()
+		if (yOffset ~= nobar) then
+			anchor:stancebar_update();
+		end
+	end);
+end;
 
 local stancebar = CreateFrame('Frame', 'pUiStanceBar', anchor, 'SecureHandlerStateTemplate')
 stancebar:SetAllPoints(anchor)
@@ -153,8 +177,8 @@ local function OnEvent(self,event,...)
 	end
 end
 
-stancebar:RegisterEvent('PLAYER_LOGIN')
-stancebar:RegisterEvent('PLAYER_ENTERING_WORLD')
+stancebar:RegisterEvent('PLAYER_LOGIN');
+stancebar:RegisterEvent('PLAYER_ENTERING_WORLD');
 stancebar:RegisterEvent('UPDATE_SHAPESHIFT_FORMS');
 stancebar:RegisterEvent('UPDATE_SHAPESHIFT_USABLE');
 stancebar:RegisterEvent('UPDATE_SHAPESHIFT_COOLDOWN');
