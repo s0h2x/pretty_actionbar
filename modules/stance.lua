@@ -7,7 +7,7 @@ local unpack = unpack;
 local select = select;
 local pairs = pairs;
 local _G = getfenv(0);
-
+local noop = addon._noop;
 -- const
 local InCombatLockdown = InCombatLockdown;
 local GetNumShapeshiftForms = GetNumShapeshiftForms;
@@ -18,6 +18,9 @@ local UIParent = UIParent;
 local hooksecurefunc = hooksecurefunc;
 local UnitAffectingCombat = UnitAffectingCombat;
 
+local OG_MultiCastActionBarFrameSetPoint = MultiCastActionBarFrame.SetPoint
+MultiCastActionBarFrame.SetPoint = noop
+local totem = {["HERO"] = 'show'}
 local stance = {
 	['DEATHKNIGHT'] = 'show',
 	['DRUID'] = 'show',
@@ -25,9 +28,41 @@ local stance = {
 	['PRIEST'] = 'show',
 	['ROGUE'] = 'show',
 	['WARLOCK'] = 'show',
-	['WARRIOR'] = 'show'
+	['WARRIOR'] = 'show',
+	--- Ascension & CoA Support ---
+	["HERO"] = 'show',
+	["PROPHET"] = 'show',
+	["FLESHWARDEN"] = 'show',
+	["RANGER"] = 'show',
+	["PYROMANCER"] = 'show',
+	["WITCHHUNTER"] = 'show',
+	["STARCALLER"] = 'show',
+	["SPIRITMAGE"] = 'show',
+	["CULTIST"] = 'show',
+	["TINKER"] = 'show',
+	["SUNCLERIC"] = 'show',
+	["NECROMANCER"] = 'show',
+	["WILDWALKER"] = 'show',
+	["CHRONOMANCER"] = 'show',
+	["STORMBRINGER"] = 'show',
+	["SONOFARUGAL"] = 'show',
+	["REAPER"] = 'show',
+	["GUARDIAN"] = 'show',
+	["MONK"] = 'show',
+	["BARBARIAN"] = 'show',
+	["WITCHDOCTOR"] = 'show',
+	["DEMONHUNTER"] = 'show'
 };
-
+local function stanceCount()
+	local count = 0
+	for index=1, NUM_SHAPESHIFT_SLOTS do
+		local _,name = GetShapeshiftFormInfo(index)
+		if name then
+			count = count+1
+		end
+	end
+	return count
+end
 -- @param: config number
 local offsetX = config.additional.stance.x_position;
 local nobar = config.additional.y_position;
@@ -41,6 +76,9 @@ anchor:SetSize(37, 37)
 
 -- method update position
 function anchor:stancebar_update()
+	MultiCastActionBarFrame.SetPoint = OG_MultiCastActionBarFrameSetPoint
+	MultiCastActionBarFrame:SetPoint('BOTTOMLEFT', pUiStanceHolder,'BOTTOMLEFT',( config.additional.size + config.additional.spacing)* stanceCount(), -3)
+	MultiCastActionBarFrame.SetPoint = noop
 	local leftbar = MultiBarBottomLeft:IsShown();
 	local rightbar = MultiBarBottomRight:IsShown();
 	if not InCombatLockdown() and not UnitAffectingCombat('player') then
@@ -92,7 +130,30 @@ end
 
 local btnsize = config.additional.size;
 local space = config.additional.spacing;
+local function C_totemButton_position(offsetStances)
+	for index=1, NUM_MULTI_CAST_BUTTONS_PER_PAGE  do
+		local button =  _G["MultiCastSlotButton"..index]
+		button:ClearAllPoints()
+		button:SetParent(stancebar)
+		button:SetSize(btnsize, btnsize)
+		if index == 1 then
+			button:SetPoint('BOTTOMLEFT', stancebar, 'BOTTOMLEFT', 0, 0)
+		else
+			local previous = _G["MultiCastSlotButton"..index-1]
+			button:SetPoint('LEFT', previous, 'RIGHT', space, 0)
+		end
+		
+		if ( GetTotemInfo(index) and GetMultiCastTotemSpells(index) ) then 
+			button:Show()
+		else
+			button:Hide()
+		end
+	end
+	RegisterStateDriver(stancebar, 'visibility', totem[class] or 'hide')
+	hooksecurefunc('MultiCastActionBarFrame_Update', stancebutton_update)
+end
 local function stancebutton_position()
+	local count = 0
 	for index=1, NUM_SHAPESHIFT_SLOTS do
 		local button = _G['ShapeshiftButton'..index]
 		button:ClearAllPoints()
@@ -107,10 +168,12 @@ local function stancebutton_position()
 		local _,name = GetShapeshiftFormInfo(index)
 		if name then
 			button:Show()
+			count = count+1
 		else
 			button:Hide()
 		end
 	end
+	C_totemButton_position(count)
 	RegisterStateDriver(stancebar, 'visibility', stance[class] or 'hide')
 	hooksecurefunc('ShapeshiftBar_Update', stancebutton_update)
 end
