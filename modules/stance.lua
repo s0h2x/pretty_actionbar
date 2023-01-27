@@ -76,9 +76,6 @@ anchor:SetSize(37, 37)
 
 -- method update position
 function anchor:stancebar_update()
-	MultiCastActionBarFrame.SetPoint = OG_MultiCastActionBarFrameSetPoint
-	MultiCastActionBarFrame:SetPoint('BOTTOMLEFT', pUiStanceHolder,'BOTTOMLEFT',( config.additional.size + config.additional.spacing)* stanceCount(), -3)
-	MultiCastActionBarFrame.SetPoint = noop
 	local leftbar = MultiBarBottomLeft:IsShown();
 	local rightbar = MultiBarBottomRight:IsShown();
 	if not InCombatLockdown() and not UnitAffectingCombat('player') then
@@ -91,6 +88,9 @@ function anchor:stancebar_update()
 		else
 			self:SetPoint('TOPLEFT', pUiMainBar, 'TOPLEFT', offsetX, nobar);
 		end
+		MultiCastActionBarFrame.SetPoint = OG_MultiCastActionBarFrameSetPoint
+		MultiCastActionBarFrame:SetPoint('BOTTOMLEFT', pUiStanceHolder,'BOTTOMLEFT',( config.additional.size + config.additional.spacing)* stanceCount(), -3)
+		MultiCastActionBarFrame.SetPoint = noop
 	end
 end
 
