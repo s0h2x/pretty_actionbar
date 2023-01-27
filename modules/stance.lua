@@ -214,6 +214,9 @@ end
 
 local function stancebutton_setup()
 	if InCombatLockdown() then return end
+	MultiCastActionBarFrame.SetPoint = OG_MultiCastActionBarFrameSetPoint
+	MultiCastActionBarFrame:SetPoint('BOTTOMLEFT', pUiStanceHolder,'BOTTOMLEFT',( config.additional.size + config.additional.spacing)* stanceCount(), -3)
+	MultiCastActionBarFrame.SetPoint = noop
 	for index=1, NUM_SHAPESHIFT_SLOTS do
 		local button = _G['ShapeshiftButton'..index]
 		local _, name = GetShapeshiftFormInfo(index)
