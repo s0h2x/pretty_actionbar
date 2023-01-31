@@ -31,20 +31,35 @@ local function possessbutton_position()
 end
 possessbutton_position();
 
-if MultiCastActionBarFrame and class == 'SHAMAN' then
+local function stanceCount()
+	local count = 0
+	for index=1, NUM_SHAPESHIFT_SLOTS do
+		local _,name = GetShapeshiftFormInfo(index)
+		if name then
+			count = count+1
+		end
+	end
+	return count
+end
+
+
+if MultiCastActionBarFrame and ( class == 'SHAMAN' or class == 'HERO' or C_Player:IsCustomClass()) then
 	MultiCastActionBarFrame:SetScript('OnUpdate', nil)
 	MultiCastActionBarFrame:SetScript('OnShow', nil)
 	MultiCastActionBarFrame:SetScript('OnHide', nil)
-	MultiCastActionBarFrame:SetParent(pUiStanceHolder)
-	MultiCastActionBarFrame:SetClearPoint('BOTTOMLEFT', pUiStanceHolder, -3, 0)
-	
+	if class == 'SHAMAN' then 
+		MultiCastActionBarFrame:SetParent(pUiStanceHolder)
+		MultiCastActionBarFrame:SetClearPoint('BOTTOMLEFT', pUiStanceHolder, -3, 0)
+		MultiCastActionBarFrame.SetParent = noop;
+		MultiCastActionBarFrame.SetPoint = noop;
+		MultiCastRecallSpellButton.SetPoint = noop;
+	else
+		MultiCastActionBarFrame:SetParent(pUiStanceHolder)
+		MultiCastActionBarFrame:SetPoint('BOTTOMLEFT', pUiStanceHolder,'BOTTOMLEFT',( config.additional.size + config.additional.spacing)* stanceCount(), -3)
+	end
 	hooksecurefunc('MultiCastActionButton_Update',function(actionButton)
 		if not InCombatLockdown() then
 			actionButton:SetAllPoints(actionButton.slotButton)
 		end
 	end);
-	
-	MultiCastActionBarFrame.SetParent = noop;
-	MultiCastActionBarFrame.SetPoint = noop;
-	MultiCastRecallSpellButton.SetPoint = noop;
 end
